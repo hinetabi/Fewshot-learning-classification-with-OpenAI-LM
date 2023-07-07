@@ -28,7 +28,7 @@ CLASS_NAMES = ['kiwi', 'lemon', 'lettuce', 'mango', 'onion', 'orange', 'paprika'
 class BasicClassifier(nn.Module):
     """Simple 3-layer classifier.
     """
-    def __init__(self, out_classes: int = 8, input_dim: int = 512, hidden_dim: int = 256):
+    def __init__(self, out_classes: int = len(CLASS_NAMES), input_dim: int = 512, hidden_dim: int = 256):
         """Initializing the basic classifier.
 
         Args:
@@ -65,7 +65,7 @@ class FewShot(pl.LightningModule):
     """FewShot classification model.
     """
 
-    def __init__(self, backbone: str = "ViT-B/16", num_classes: int = 8,
+    def __init__(self, backbone: str = "ViT-B/16", num_classes: int = len(CLASS_NAMES),
                 learning_rate: float = 1e-3, log_freq: int = 10):
         """Initializing the model.
 
