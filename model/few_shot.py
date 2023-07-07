@@ -21,7 +21,9 @@ import matplotlib.pyplot as plt
 from model.utils import classification_block
 
 # Name position determines class idx
-CLASS_NAMES = ['airplane', 'bicycle', 'boat', 'bus', 'car', 'motorcycle', 'train', 'truck']
+CLASS_NAMES = ['kiwi', 'lemon', 'lettuce', 'mango', 'onion', 'orange', 'paprika', 'pear', 'peas',
+               'pineapple', 'pomegranate', 'potato', 'raddish', 'soy beans', 'spinach', 'sweetcorn',
+               'sweetpotato', 'tomato', 'turnip', 'watermelon']
 
 class BasicClassifier(nn.Module):
     """Simple 3-layer classifier.

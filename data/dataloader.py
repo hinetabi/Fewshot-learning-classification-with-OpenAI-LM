@@ -16,7 +16,10 @@ from torch.utils import data
 # sklearn
 from sklearn.model_selection import train_test_split
 
-CLASS_NAMES = ['airplane', 'bicycle', 'boat', 'bus', 'car', 'motorcycle', 'train', 'truck']
+CLASS_NAMES = ['kiwi', 'lemon', 'lettuce', 'mango', 'onion', 'orange',
+               'paprika', 'pear', 'peas', 'pineapple', 'pomegranate', 
+               'potato', 'raddish', 'soy beans', 'spinach', 'sweetcorn',
+               'sweetpotato', 'tomato', 'turnip', 'watermelon']
 
 class FewShotDataset(data.Dataset):
     """Class representing dataset used for few shot learning task.
