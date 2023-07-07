@@ -1,0 +1,4 @@
+backbone: ViT-B/16
+learning_rate: 0.001
+log_freq: 10
+num_classes: 8
