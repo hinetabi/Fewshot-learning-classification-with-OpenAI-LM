@@ -56,6 +56,7 @@ if __name__=='__main__':
 
     # Training step
     dm.setup(stage='fit')
+    print(dm.datasets)
 
     # Callbacks to early stop and save the best models
     stop_cb = EarlyStopping(monitor='valid_global_acc', mode='max', patience=5, verbose=True)

@@ -62,7 +62,7 @@ class FewShotDataModule(pl.LightningDataModule):
     """Class encapsulating all the routines to handle FewShot Dataset.
     """
     def __init__(self, ops: Callable, batch_size: int = 4,
-                 num_workers: int = 8, path_to_data: str = './dataset/few_shot/'):
+                 num_workers: int = 8, path_to_data: str = './dataset/fruit/'):
         """Class encapsulating all the routines to handle FewShot Dataset.
 
         Args:
@@ -99,9 +99,9 @@ class FewShotDataModule(pl.LightningDataModule):
         """
 
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument('--path_to_data', type=str, default='./dataset/few_shot/',
+        parser.add_argument('--path_to_data', type=str, default='./dataset/fruit/',
                             help='relative path to FewShot dataset. Defaults to ./dataset/few_shot/')
-        parser.add_argument('--num_workers', type=int, default=8,
+        parser.add_argument('--num_workers', type=int, default=20,
                             help='number of processes to handle data loading. Defaults to 8.')
         parser.add_argument('--batch_size', type=int, default=4,
                             help='number of samples per batch. Defaults to 4.')
