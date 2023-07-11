@@ -59,6 +59,7 @@ if __name__=='__main__':
 
     # Callbacks to early stop and save the best models
     stop_cb = EarlyStopping(monitor='valid_global_acc', mode='max', patience=5, verbose=True)
+    
     chkpoint_cb = ModelCheckpoint(monitor='valid_global_acc', dirpath='./checkpoints/',
                                     filename='fewshot-{epoch:02d}-{acc:.2f}',
                                     mode='max')

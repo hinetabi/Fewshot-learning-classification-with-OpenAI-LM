@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 
 # Utils
 from model.utils import classification_block
+import wandb
 
 # Name position determines class idx
 CLASS_NAMES = ['kiwi', 'lemon', 'lettuce', 'mango', 'onion', 'orange', 'paprika', 'pear', 'peas',
@@ -221,4 +222,11 @@ class FewShot(pl.LightningModule):
         ## Get the confussion matrix
         _fig, _ax = plt.subplots(figsize=(16, 12))
         plot_confusion_matrix(y_true=self.targs, y_pred=self.outs, normalize=True, ax=_ax)
-        self.logger.experiment.log_image('test/confussion_matrix', _fig)
+
+        plt.savefig("Confusion.jpg")
+
+        self.logger.experiment.log({
+            "test/confussion_matrix": [wandb.Image(img) 
+            for (img) in _fig]
+        })
+        self.log_image('test/confussion_matrix', _fig)
