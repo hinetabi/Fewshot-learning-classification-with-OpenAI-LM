@@ -54,7 +54,7 @@ if __name__=='__main__':
                     'ViT-L/14@336px']
     
 
-    clip_model = 'ViT-B/16'
+    clip_model = 'ViT-L/14'
         # try: 
     
     wandb_logger = WandbLogger(project="Deep learning", log_model=True, name=f'Train with {clip_model} and data {args.path_to_data}')
