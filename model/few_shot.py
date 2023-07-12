@@ -226,10 +226,10 @@ class FewShot(pl.LightningModule):
         plot_confusion_matrix(y_true=self.targs, y_pred=self.outs, normalize=True, ax=_ax)
 
         plt.savefig(f"Confusion_Of_{self.backbone_name}.jpg")
-        self.save_hyperparameters()
+        # self.save_hyperparameters()
 
-        self.logger.experiment.log({
-            "test/confussion_matrix": [wandb.Image(img) 
-            for (img) in _fig]
-        })
+        # self.logger.experiment.log({
+        #     "test/confussion_matrix": [wandb.Image(img) 
+        #     for (img) in _fig]
+        # })
         # self.log_image('test/confussion_matrix', _fig)
