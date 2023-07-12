@@ -19,14 +19,18 @@ import matplotlib.pyplot as plt
 
 # Utils
 from model.utils import classification_block
+import wandb
 
 # Name position determines class idx
-CLASS_NAMES = ['airplane', 'bicycle', 'boat', 'bus', 'car', 'motorcycle', 'train', 'truck']
+CLASS_NAMES = ['cucumber', 'ginger', 'grapes', 'jalepeno', 'kiwi', 'lemon',
+               'lettuce', 'onion', 'orange', 'pear', 'peas', 'pineapple', 
+               'pomegranate', 'soy beans', 'spinach', 'sweetcorn', 'sweetpotato',
+               'tomato', 'turnip', 'watermelon']
 
 class BasicClassifier(nn.Module):
     """Simple 3-layer classifier.
     """
-    def __init__(self, out_classes: int = 8, input_dim: int = 512, hidden_dim: int = 256):
+    def __init__(self, out_classes: int = len(CLASS_NAMES), input_dim: int = 512, hidden_dim: int = 128):
         """Initializing the basic classifier.
 
         Args:
@@ -37,12 +41,12 @@ class BasicClassifier(nn.Module):
             hidden_dim (int, optional): first hidden dimension. Defaults to 256.
         """
         super().__init__()
-
+        hidden_dim = input_dim // 4
         self.block0 = classification_block(input_dim, hidden_dim,
-                                                dropout=0.2, batch_norm=True)
-        self.block1 = classification_block(hidden_dim, hidden_dim // 2,
-                                                dropout=0.2, batch_norm=True)
-        self.block2 = classification_block(hidden_dim // 2, out_classes)
+                                                dropout=0.4, batch_norm=True)
+        # self.block1 = classification_block(hidden_dim, hidden_dim // 2,
+        #                                         dropout=0.2, batch_norm=True)
+        self.block2 = classification_block(hidden_dim, out_classes)
 
     def forward(self, inp: torch.HalfTensor) -> torch.HalfTensor:
         """Forward pass.
@@ -54,7 +58,7 @@ class BasicClassifier(nn.Module):
             torch.HalfTensor: classification net output.
         """
         inp = self.block0(inp)
-        inp = self.block1(inp)
+        # inp = self.block1(inp)
         inp = self.block2(inp)
 
         return inp
@@ -63,8 +67,8 @@ class FewShot(pl.LightningModule):
     """FewShot classification model.
     """
 
-    def __init__(self, backbone: str = "ViT-B/16", num_classes: int = 8,
-                learning_rate: float = 1e-3, log_freq: int = 10):
+    def __init__(self, backbone: str = "ViT-B/32", num_classes: int = len(CLASS_NAMES),
+                learning_rate: float = 1e-3, log_freq: int = 10, input_dims = 512):
         """Initializing the model.
 
         Args:
@@ -76,10 +80,11 @@ class FewShot(pl.LightningModule):
         super(FewShot, self).__init__()
 
         print("====> initializing FewShot classifier model...")
-        self.save_hyperparameters()
+        # self.save_hyperparameters()
         self.learning_rate = learning_rate
         self.num_classes = num_classes
         self.log_freq = log_freq
+        self.backbone_name = backbone
 
         # Instance of CLIP model used as a backbone
         self.backbone, self.preprocess = clip.load(backbone)
@@ -89,7 +94,7 @@ class FewShot(pl.LightningModule):
             param.requires_grad = False
 
         # Instance of a basic classifier
-        self.classifier = BasicClassifier(out_classes= num_classes)
+        self.classifier = BasicClassifier(input_dim=input_dims, out_classes= num_classes)
 
         # Classification loss
         self.loss = nn.CrossEntropyLoss()
@@ -116,7 +121,7 @@ class FewShot(pl.LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument('--no_logger', action='store_true',
                             help='if true, log stuff in Neptune.')
-        parser.add_argument('--max_epochs', type=int, default=300,
+        parser.add_argument('--max_epochs', type=int, default=15,
                             help='maximum number of training epochs.')
         parser.add_argument('--learning_rate', type=float, default=1e-3,
                             help='learning rate used for training.')
@@ -219,4 +224,12 @@ class FewShot(pl.LightningModule):
         ## Get the confussion matrix
         _fig, _ax = plt.subplots(figsize=(16, 12))
         plot_confusion_matrix(y_true=self.targs, y_pred=self.outs, normalize=True, ax=_ax)
-        self.logger.experiment.log_image('test/confussion_matrix', _fig)
+
+        plt.savefig(f"Confusion_Of_{self.backbone_name}.jpg")
+        self.save_hyperparameters()
+
+        self.logger.experiment.log({
+            "test/confussion_matrix": [wandb.Image(img) 
+            for (img) in _fig]
+        })
+        # self.log_image('test/confussion_matrix', _fig)

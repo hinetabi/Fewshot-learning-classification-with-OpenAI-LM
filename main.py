@@ -41,38 +41,84 @@ if __name__=='__main__':
     # except ImportError: # no neptune credentials, no logger
     #     print("No Neptune logging")
     #     logger = NeptuneLogger(offline_mode=True)
-    wandb_logger = WandbLogger()
 
-    wandb.init(
-    # set the wandb project where this run will be logged
-        project="Deep learning")
+    clip_models = ['RN50',
+                    'RN101',
+                    'RN50x4',
+                    'RN50x16',
+                    'RN50x64',
+                    'ViT-B/32',
+                    'ViT-B/16',
+                    'ViT-L/14',
+                    'ViT-L/14@336px']
 
-    # Model instance
-    few_model = FewShot(learning_rate=args.learning_rate)
+    # clip_model = "ViT-B/32"
+    for clip_model in clip_models:
+        try:
+            wandb_logger = WandbLogger(project="Deep learning", log_model=True, name=clip_model)
 
-    # Datamodule
-    dm = FewShotDataModule(ops=few_model.preprocess, path_to_data=args.path_to_data)
-    dm.prepare_data()
+            # Model instance
+            few_model = FewShot(learning_rate=args.learning_rate, backbone=clip_model)
 
-    # Training step
-    dm.setup(stage='fit')
+            # Datamodule
+            dm = FewShotDataModule(ops=few_model.preprocess, path_to_data=args.path_to_data)
+            dm.prepare_data()
 
-    # Callbacks to early stop and save the best models
-    stop_cb = EarlyStopping(monitor='valid_global_acc', mode='max', patience=5, verbose=True)
-    chkpoint_cb = ModelCheckpoint(monitor='valid_global_acc', dirpath='./checkpoints/',
-                                    filename='fewshot-{epoch:02d}-{acc:.2f}',
-                                    mode='max')
+            # Training step
+            dm.setup(stage='fit')
+            print(dm.datasets)
 
-    trainer = pl.Trainer(precision=16, logger=wandb_logger, callbacks=[chkpoint_cb, stop_cb],
-                         max_epochs=args.max_epochs)
-    
-    # trainer = pl.Trainer(precision=16, callbacks=[chkpoint_cb, stop_cb],
-    #                      max_epochs=args.max_epochs)
+            # Callbacks to early stop and save the best models
+            stop_cb = EarlyStopping(monitor='valid_global_acc', mode='max', patience=5, verbose=True)
+            
+            chkpoint_cb = ModelCheckpoint(monitor='valid_global_acc', dirpath='./checkpoints/',
+                                            filename='fewshot-{epoch:02d}-{acc:.2f}',
+                                            mode='max')
 
-    
-    trainer.fit(few_model, dm)
+            trainer = pl.Trainer(precision=16, logger=wandb_logger, callbacks=[chkpoint_cb, stop_cb],
+                                max_epochs=args.max_epochs)
 
-    # Test stage -> loading the best model according to validation accuracy
-    dm.setup(stage='test')
-    few_model = FewShot.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
-    trainer.test(few_model, datamodule=dm)
+            
+            trainer.fit(few_model, dm)
+
+            # Test stage -> loading the best model according to validation accuracy
+            dm.setup(stage='test')
+            few_model = FewShot.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
+            trainer.test(few_model, datamodule=dm)
+            wandb.finish()
+        except Exception as e:
+            try:
+                wandb_logger = WandbLogger(project="Deep learning", log_model=True, name=clip_model)
+
+                # Model instance
+                few_model = FewShot(learning_rate=args.learning_rate, backbone=clip_model, input_dims=1024)
+
+                # Datamodule
+                dm = FewShotDataModule(ops=few_model.preprocess, path_to_data=args.path_to_data)
+                dm.prepare_data()
+
+                # Training step
+                dm.setup(stage='fit')
+                print(dm.datasets)
+
+                # Callbacks to early stop and save the best models
+                stop_cb = EarlyStopping(monitor='valid_global_acc', mode='max', patience=5, verbose=True)
+                
+                chkpoint_cb = ModelCheckpoint(monitor='valid_global_acc', dirpath='./checkpoints/',
+                                                filename='fewshot-{epoch:02d}-{acc:.2f}',
+                                                mode='max')
+
+                trainer = pl.Trainer(precision=16, logger=wandb_logger, callbacks=[chkpoint_cb, stop_cb],
+                                    max_epochs=args.max_epochs)
+
+                
+                trainer.fit(few_model, dm)
+
+                # Test stage -> loading the best model according to validation accuracy
+                dm.setup(stage='test')
+                few_model = FewShot.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
+                trainer.test(few_model, datamodule=dm)
+                wandb.finish() 
+            except Exception as e:
+                print(e)
+                continue

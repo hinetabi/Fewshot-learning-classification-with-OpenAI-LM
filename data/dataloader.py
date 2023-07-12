@@ -16,7 +16,10 @@ from torch.utils import data
 # sklearn
 from sklearn.model_selection import train_test_split
 
-CLASS_NAMES = ['airplane', 'bicycle', 'boat', 'bus', 'car', 'motorcycle', 'train', 'truck']
+CLASS_NAMES = ['cucumber', 'ginger', 'grapes', 'jalepeno', 'kiwi', 'lemon',
+               'lettuce', 'onion', 'orange', 'pear', 'peas', 'pineapple', 
+               'pomegranate', 'soy beans', 'spinach', 'sweetcorn', 'sweetpotato',
+               'tomato', 'turnip', 'watermelon']
 
 class FewShotDataset(data.Dataset):
     """Class representing dataset used for few shot learning task.
@@ -59,7 +62,7 @@ class FewShotDataModule(pl.LightningDataModule):
     """Class encapsulating all the routines to handle FewShot Dataset.
     """
     def __init__(self, ops: Callable, batch_size: int = 4,
-                 num_workers: int = 8, path_to_data: str = './dataset/few_shot/'):
+                 num_workers: int = 8, path_to_data: str = './dataset/fruit/'):
         """Class encapsulating all the routines to handle FewShot Dataset.
 
         Args:
@@ -82,7 +85,8 @@ class FewShotDataModule(pl.LightningDataModule):
         self.splits = {} # Contains train and valid splits.
         self.datasets = {} # Contains instances of the Dataset class. One per data spit.
         self.class_map = dict(zip(CLASS_NAMES, range(len(CLASS_NAMES))))
-        self.weights = [0] * len(CLASS_NAMES)
+        # self.weights = [0] * len(CLASS_NAMES)
+        self.weights = [len(os.listdir(os.path.join(self.path_to_data, "train", i))) for i in CLASS_NAMES]
 
     @staticmethod
     def add_model_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:
@@ -96,12 +100,12 @@ class FewShotDataModule(pl.LightningDataModule):
         """
 
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument('--path_to_data', type=str, default='./dataset/few_shot/',
+        parser.add_argument('--path_to_data', type=str, default='./dataset/fruit/',
                             help='relative path to FewShot dataset. Defaults to ./dataset/few_shot/')
-        parser.add_argument('--num_workers', type=int, default=8,
+        parser.add_argument('--num_workers', type=int, default=20,
                             help='number of processes to handle data loading. Defaults to 8.')
-        parser.add_argument('--batch_size', type=int, default=4,
-                            help='number of samples per batch. Defaults to 4.')
+        parser.add_argument('--batch_size', type=int, default=8,
+                            help='number of samples per batch. Defaults to 8.')
 
         return parser
 
@@ -203,6 +207,8 @@ class FewShotDataModule(pl.LightningDataModule):
         return data.DataLoader(dataset=self.datasets['train'], batch_size=self.batch_size,
                                num_workers=self.num_workers, pin_memory=False,
                                sampler=random_sampler)
+        # return data.DataLoader(dataset=self.datasets['train'], batch_size=self.batch_size,
+        #                        num_workers=self.num_workers, pin_memory=False)
 
     def val_dataloader(self) -> data.DataLoader:
         """Getter for the validation dataloader
