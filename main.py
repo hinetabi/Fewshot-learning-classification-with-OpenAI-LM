@@ -55,7 +55,7 @@ if __name__=='__main__':
     # clip_model = "ViT-B/32"
     for clip_model in clip_models:
         try:
-            wandb_logger = WandbLogger(project="Deep learning", log_model=True, name=clip_model)
+            wandb_logger = WandbLogger(project="Deep learning", log_model=True, name=f'Train with {clip_model} and data {args.path_to_data}')
 
             # Model instance
             few_model = FewShot(learning_rate=args.learning_rate, backbone=clip_model)
