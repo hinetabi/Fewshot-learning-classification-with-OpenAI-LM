@@ -80,7 +80,7 @@ class FewShot(pl.LightningModule):
         super(FewShot, self).__init__()
 
         print("====> initializing FewShot classifier model...")
-        # self.save_hyperparameters()
+        self.save_hyperparameters()
         self.learning_rate = learning_rate
         self.num_classes = num_classes
         self.log_freq = log_freq
@@ -226,7 +226,6 @@ class FewShot(pl.LightningModule):
         plot_confusion_matrix(y_true=self.targs, y_pred=self.outs, normalize=True, ax=_ax)
 
         plt.savefig(f"Confusion_Of_{self.backbone_name}.jpg")
-        # self.save_hyperparameters()
 
         # self.logger.experiment.log({
         #     "test/confussion_matrix": [wandb.Image(img) 
