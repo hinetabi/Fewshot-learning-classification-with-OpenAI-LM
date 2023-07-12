@@ -51,6 +51,12 @@ if __name__=='__main__':
                     'ViT-B/16',
                     'ViT-L/14',
                     'ViT-L/14@336px']
+    
+    clip_models = ['RN50',
+                    'ViT-B/32',
+                    'ViT-B/16',
+                    'ViT-L/14',
+                    'ViT-L/14@336px']
 
     # clip_model = "ViT-B/32"
     for clip_model in clip_models:
