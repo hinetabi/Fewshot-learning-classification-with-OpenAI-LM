@@ -84,7 +84,7 @@ class FewShot(pl.LightningModule):
         self.learning_rate = learning_rate
         self.num_classes = num_classes
         self.log_freq = log_freq
-        self.backbone_name = backbone
+        self.backbone_name = backbone.replace("/", "")
 
         # Instance of CLIP model used as a backbone
         self.backbone, self.preprocess = clip.load(backbone)
